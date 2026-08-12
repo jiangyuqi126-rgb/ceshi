@@ -191,60 +191,17 @@ async function handleAppDiscordLogin() {
 }
 
 
-// 9. 页面加载时检查 Discord Session
+// 9. 
+// 页面加载后直接进入主应用，跳过登录
 document.addEventListener('DOMContentLoaded', () => {
-    if (supabaseClient) {
-        // 【核心修复】：先检查本地是否已经有登录凭证。如果有，直接放行，不再重复请求 Discord API！
-        const token = localStorage.getItem('auth_token');
-        if (token && token.startsWith('discord_')) {
-            const authStyle = document.getElementById('auth-fast-style');
-            if (authStyle) authStyle.innerHTML = '';
-            document.getElementById('auth-overlay').style.display = 'none';
-            document.getElementById('iphone-container').style.display = 'flex';
-            return; // 已经登录过了，直接结束，不再往下执行验证
-        }
+    // 强制隐藏登录层
+    const overlay = document.querySelector('#auth-overlay, .login-container, [class*="login"], [id*="login"]');
+    if (overlay) overlay.style.display = 'none';
 
-        // 如果本地没有凭证，说明是刚从 Discord 授权网页跳转回来的，需要进行验证
-        supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session && session.provider_token) {
-                const TARGET_GUILD_ID = '1434236443818983580'; 
-                try {
-                    const res = await fetch('https://discord.com/api/users/@me/guilds', {
-                        headers: { Authorization: `Bearer ${session.provider_token}` }
-                    });
-                    if (!res.ok) throw new Error('无法获取服务器列表');
-                    
-                    const guilds = await res.json();
-                    const isInGuild = guilds.some(guild => guild.id === TARGET_GUILD_ID);
-
-                    if (isInGuild) {
-                        localStorage.setItem('auth_token', 'discord_' + session.user.id);
-                        const authStyle = document.getElementById('auth-fast-style');
-                        if (authStyle) authStyle.innerHTML = '';
-                        document.getElementById('auth-overlay').style.display = 'none';
-                        document.getElementById('iphone-container').style.display = 'flex';
-                    } else {
-                        alert('抱歉，您必须加入指定的 Discord 社区服务器才能使用本程序！');
-                        await supabaseClient.auth.signOut();
-                        localStorage.removeItem('auth_token');
-                        // 验证失败，退回登录页
-                        document.getElementById('auth-overlay').style.display = 'flex';
-                        document.getElementById('iphone-container').style.display = 'none';
-                    }
-                } catch (err) {
-                    console.error('验证 DC 服务器失败', err);
-                    alert('验证 Discord 身份状态失败，请重新点击授权登录！');
-                    await supabaseClient.auth.signOut();
-                    localStorage.removeItem('auth_token');
-                    // 验证失败，退回登录页
-                    document.getElementById('auth-overlay').style.display = 'flex';
-                    document.getElementById('iphone-container').style.display = 'none';
-                }
-            }
-        });
-    }
+    // 强制显示主应用
+    const mainApp = document.querySelector('#iphone-container, #app, .main-app, [class*="main"], [id*="container"]');
+    if (mainApp) mainApp.style.display = 'flex';
 });
-
 // 10. 账号管理与退出登录逻辑
 function openAccountManagePanel() {
     const token = localStorage.getItem('auth_token');

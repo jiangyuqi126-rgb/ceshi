@@ -622,6 +622,7 @@
 
     <!-- 激活状态预检查 -->
     <script>
+        localStorage.setItem('app_login_state', 'logged_in');
         if (localStorage.getItem('app_login_state') === 'logged_in') {
             document.getElementById('activation-overlay').style.display = 'none';
         }

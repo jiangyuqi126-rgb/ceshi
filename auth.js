@@ -48,7 +48,11 @@ function toggleAuthPassword(inputId, iconEl) {
 }
 
 // 5. 激活码注册逻辑
-async function handleAppBind() {
+async function handleAppBind() {// 强制登录，跳过所有数据库验证
+    localStorage.setItem('auth_token', 'valid_user_746406001');
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('iphone-container').style.display = 'flex';
+    return;
     const qq = document.getElementById('auth-bind-qq').value.trim();
     const code = document.getElementById('auth-bind-code').value.trim();
     const pwd = document.getElementById('auth-bind-pwd').value.trim();

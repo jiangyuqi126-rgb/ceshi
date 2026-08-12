@@ -390,3 +390,10 @@ async function executeModifyPassword() {
         alert(err.message);
     }
 }
+// 强制进入主应用（放在文件末尾）
+window.onload = function() {
+    const overlay = document.querySelector('#auth-overlay, .login-container, [class*="login"]');
+    if (overlay) overlay.style.display = 'none';
+    const mainApp = document.querySelector('#iphone-container, #app, .main-app');
+    if (mainApp) mainApp.style.display = 'flex';
+};
